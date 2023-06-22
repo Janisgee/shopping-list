@@ -2,8 +2,13 @@ import { useState, useEffect } from 'react';
 
 export default function App() {
   const storeItems = JSON.parse(localStorage.getItem('items'));
-  const [items, setItems] = useState(storeItems);
+  storeItems.map((item) =>
+    item.checked === true ? item.checked === true : item.checked === false,
+  );
 
+  const [items, setItems] = useState(storeItems ? storeItems : []);
+  console.log(storeItems);
+  console.log(items);
   useEffect(() => {
     localStorage.setItem('items', JSON.stringify(items));
   }, [items]);
