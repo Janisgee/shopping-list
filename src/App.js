@@ -11,13 +11,25 @@ export default function App() {
     setItems((items) => items.filter((item) => item.id !== id));
   }
 
+  function handleToggleChecked(id) {
+    setItems((items) =>
+      items.map((item) =>
+        item.id === id ? { ...item, checked: !item.checked } : item,
+      ),
+    );
+  }
+
   return (
     <div className='app'>
       <div className='container'>
         <Heading onAddItems={handleAddItems} />
-        <ThreeLists items={items} onDeleteItems={handleDeleteItems} />
-        <Control />
-        <Footer />
+        <ThreeLists
+          items={items}
+          onDeleteItems={handleDeleteItems}
+          onToggleChecked={handleToggleChecked}
+        />
+
+        <Footer items={items} />
       </div>
     </div>
   );
@@ -34,7 +46,7 @@ function Heading({ onAddItems }) {
     const newItem = {
       name: inputItem,
       description: description,
-      packed: false,
+      checked: false,
       id: crypto.randomUUID(),
     };
 
@@ -68,78 +80,110 @@ function Heading({ onAddItems }) {
   );
 }
 
-function ThreeLists({ items, onDeleteItems }) {
-  console.log(items);
-  const groceriesList = items.filter(
+function ThreeLists({ items, onDeleteItems, onToggleChecked }) {
+  const [sortBy, setSortBy] = useState('order');
+
+  let sortedLists;
+
+  if (sortBy === 'order') sortedLists = items;
+  if (sortBy === 'name')
+    sortedLists = items.slice().sort((a, b) => a.name.localeCompare(b.name));
+  if (sortBy === 'checkingStatus')
+    sortedLists = items
+      .slice()
+      .sort((a, b) => Number(a.checked) - Number(b.checked));
+
+  const groceriesList = sortedLists.filter(
     (item) => item.description === 'Groceries',
   );
-  const householdList = items.filter(
+  const householdList = sortedLists.filter(
     (item) => item.description === 'Household',
   );
-  const otherList = items.filter((item) => item.description === 'Others');
+  const otherList = sortedLists.filter((item) => item.description === 'Others');
 
   return (
-    <div className='three-lists'>
-      <List
-        children='Groceries'
-        items={groceriesList}
-        onDeleteItems={onDeleteItems}
-      />
-      <List
-        children='Household'
-        items={householdList}
-        onDeleteItems={onDeleteItems}
-      />
-      <List children='Others' items={otherList} onDeleteItems={onDeleteItems} />
-    </div>
+    <>
+      <div className='three-lists'>
+        <List
+          children='Groceries'
+          items={groceriesList}
+          onDeleteItems={onDeleteItems}
+          onToggleChecked={onToggleChecked}
+        />
+        <List
+          children='Household'
+          items={householdList}
+          onDeleteItems={onDeleteItems}
+          onToggleChecked={onToggleChecked}
+        />
+        <List
+          children='Others'
+          items={otherList}
+          onDeleteItems={onDeleteItems}
+          onToggleChecked={onToggleChecked}
+        />
+      </div>
+      <div className='control'>
+        <span className='sort'>
+          <select
+            value={sortBy}
+            onChange={(e) => {
+              setSortBy(e.target.value);
+            }}
+          >
+            <option value='order'>Sort by input order</option>
+            <option value='name'>Sort by name</option>
+            <option value='checkingStatus'>Sort by checked status</option>
+          </select>
+          <button>Clear checked List</button>
+          <button>Clear All</button>
+        </span>
+      </div>
+    </>
   );
 }
 
-function List({ children, items, onDeleteItems }) {
+function List({ children, items, onDeleteItems, onToggleChecked }) {
   return (
     <div className='list'>
       <h3>{children}</h3>
 
       <ul className='list-item'>
-        {items &&
-          items.map((item) => (
-            <Item item={item} key={item.id} onDeleteItems={onDeleteItems} />
-          ))}
+        {items.map((item) => (
+          <Item
+            item={item}
+            key={item.id}
+            onDeleteItems={onDeleteItems}
+            onToggleChecked={onToggleChecked}
+          />
+        ))}
       </ul>
     </div>
   );
 }
 
-function Item({ item, onDeleteItems }) {
+function Item({ item, onDeleteItems, onToggleChecked }) {
   return (
     <li>
-      <input type='checkbox' value={item.packed} onChange={() => {}} />
-      <span>{item.name}</span>
+      <input
+        type='checkbox'
+        value={item.checked}
+        onChange={() => onToggleChecked(item.id)}
+      />
+      <span style={item.checked ? { textDecoration: 'line-through' } : {}}>
+        {item.name}
+      </span>
       <button onClick={() => onDeleteItems(item.id)}>❌</button>
     </li>
   );
 }
 
-function Control() {
-  return (
-    <div className='control'>
-      <span className='sort'>
-        <select>
-          <option value='order'>Sort by input order</option>
-          <option value='name'>Sort by name</option>
-          <option value='packingStatus'>Sort by packed status</option>
-        </select>
-        <button>Clear checked List</button>
-        <button>Clear All</button>
-      </span>
-    </div>
-  );
-}
-
-function Footer() {
+function Footer({ items }) {
+  const numItems = items.length;
   return (
     <footer className='check-result'>
-      🛒 You have 6 items on your list, and you have already checked ✅2 (33%)
+      🛒 You have {numItems} items on your list, and you have already checked
+      ✅2 (33%)
     </footer>
   );
 }
