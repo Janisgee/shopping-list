@@ -19,6 +19,14 @@ export default function App() {
     );
   }
 
+  function handleClearList() {
+    setItems([]);
+  }
+
+  function handleClearChecked() {
+    setItems((items) => items.filter((item) => item.checked === false));
+  }
+
   return (
     <div className='app'>
       <div className='container'>
@@ -27,6 +35,8 @@ export default function App() {
           items={items}
           onDeleteItems={handleDeleteItems}
           onToggleChecked={handleToggleChecked}
+          onClearList={handleClearList}
+          onClearChecked={handleClearChecked}
         />
 
         <Footer items={items} />
@@ -43,8 +53,16 @@ function Heading({ onAddItems }) {
 
     if (!inputItem) return;
 
+    const capitalizeItem = inputItem
+      .toLowerCase()
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+
+    console.log(capitalizeItem);
+
     const newItem = {
-      name: inputItem,
+      name: capitalizeItem,
       description: description,
       checked: false,
       id: crypto.randomUUID(),
@@ -80,7 +98,13 @@ function Heading({ onAddItems }) {
   );
 }
 
-function ThreeLists({ items, onDeleteItems, onToggleChecked }) {
+function ThreeLists({
+  items,
+  onDeleteItems,
+  onToggleChecked,
+  onClearList,
+  onClearChecked,
+}) {
   const [sortBy, setSortBy] = useState('order');
 
   let sortedLists;
@@ -135,8 +159,8 @@ function ThreeLists({ items, onDeleteItems, onToggleChecked }) {
             <option value='name'>Sort by name</option>
             <option value='checkingStatus'>Sort by checked status</option>
           </select>
-          <button>Clear checked List</button>
-          <button>Clear All</button>
+          <button onClick={onClearChecked}>Clear checked List</button>
+          <button onClick={onClearList}>Clear All</button>
         </span>
       </div>
     </>
@@ -180,10 +204,14 @@ function Item({ item, onDeleteItems, onToggleChecked }) {
 
 function Footer({ items }) {
   const numItems = items.length;
+  const numCheckedItems = items.filter((item) => item.checked === true).length;
+  const percentage = Math.round((numCheckedItems / numItems) * 100);
   return (
     <footer className='check-result'>
-      🛒 You have {numItems} items on your list, and you have already checked
-      ✅2 (33%)
+      {percentage === 100
+        ? '🛍️ You have bought all the items that you need ! 😊'
+        : `🛒 You have  ${numItems}  items on your list , and you have already checked ✅
+      ${numCheckedItems} (${percentage}%)`}
     </footer>
   );
 }
