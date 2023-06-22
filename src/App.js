@@ -1,22 +1,25 @@
-
-
-export default function App() {
-  return (
+export default function App(){
+return(
     <div className="app">
-      <div className="container">
+    <div className="container">
+        <Heading/>
+        <ThreeLists />
+        <Control />
+        <Footer />
+    </div>
+    </div>)}
 
-      {/* header */}
-    <header>
+
+function Heading (){
+    return ( <header>
 <h1>🍆🍠 Shopping List 🥕🥒</h1>
-</header>
+</header>)
+}
 
-      {/* three-lists */}
-
-<div className="three-lists">
-      {/* ------list-one */}
-  <div><h3>Groceries</h3>
+function List({children}){
+    return (<div class="list"><h3>{children}</h3>
   <form><input type='text' placeholder="Add New Item"></input><button>+</button>
-  <div >
+  <div>
   <ul className='list-item'>
   <li>
     <input type='checkbox'/>
@@ -26,48 +29,29 @@ export default function App() {
   </ul>
   </div>
   </form>
-  </div>
-      {/* ------list-two */}
-  <div><h3>Household</h3><form><input type='text' placeholder="Add New Item"></input><button>+</button>
+  </div>)
+}
 
-  <div >
-  <ul className='list-item'>
-  <li>
-    <input type='checkbox'/>
-    <span>apple</span>
-    <button>❌</button>
-  </li>
-  </ul>
-  </div>
-  </form></div>
-      {/* ------list-three */}
-  <div><h3>Others</h3><form><input type='text' placeholder="Add New Item"></input><button>+</button>
-<div >
-  <ul className='list-item'>
-  <li>
-    <input type='checkbox'/>
-    <span>apple</span>
-    <button>❌</button>
-    </li>
-  </ul>
-  </div>
-  </form></div></div>
 
-      {/* Control-button */}
+function ThreeLists(){
+    return(<div className="three-lists">
+        <List children='Groceries'/>
+        <List children='Household'/>
+        <List children='Others'/>
+</div>)}
 
-  <div className="control">
+
+function Control(){
+    return(<div className="control">
   <span className='sort'>
   <select><option>Sort by input order</option>
   <option>Sort by description</option>
   <option>Sort by packed status</option></select>
   <button>Clear checked List</button>
   <button>Clear All</button></span>
-</div>
-  
-      {/* Footer */}
-  <footer className='check-result'>🛒 You have 6 items on your list, and you have already checked ✅2 (33%)</footer>
-    </div></div>
-  );
+</div>)
 }
 
-
+function Footer(){
+    return(  <footer className='check-result'>🛒 You have 6 items on your list, and you have already checked ✅2 (33%)</footer>)
+}
